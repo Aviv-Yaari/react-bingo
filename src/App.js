@@ -1,49 +1,81 @@
 import { useEffect, useState } from 'react';
-import { Button } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
 import Board from './components/Board';
 import DrawnNumber from './components/DrawnNumber';
-
-const gNums = [];
-function resetNums() {
-  gNums.splice([0]); // empty the array first
-  for (let i = 1; i <= 100; i++) {
-    gNums.push(i);
-  }
-}
-resetNums();
+import { drawInitialNum, drawNum, resetPossibleNums } from './store/drawSlice';
+import HistoryBalls from './components/Balls/HistoryBalls';
+import LatestBall from './components/Balls/LatestBall';
+import UpcomingBalls from './components/Balls/UpcomingBalls';
+import DrawSection from './components/DrawSection';
 
 function App() {
-  const [drawnNums, setDrawnNums] = useState([]);
-  const drawNum = () => {
-    const randomNum = Math.floor(Math.random() * (gNums.length - 1));
-    return gNums.splice(randomNum, 1)[0];
-  };
-  const drawNumHandler = () => {
-    const num = drawNum();
-    setDrawnNums((drawnNums) => [...drawnNums, num]);
-  };
+  const drawnNums = useSelector((state) => state.draw.drawnNums);
+  const initialNums = useSelector((state) => state.draw.initialNums);
+  const possibleNums = useSelector((state) => state.draw.possibleNums);
 
+  const dispatch = useDispatch();
+  const [boards, setBoards] = useState([]);
+
+  // first render: initialize board
   useEffect(() => {
-    resetNums();
-  }, []);
+    const initBoard = () => {
+      const board = [];
+      for (let i = 0; i < 5; i++) {
+        const row = [];
+        for (let j = 0; j < 5; j++) {
+          dispatch(drawInitialNum());
+          row.push({ value: -1, isHit: false });
+        }
+        board.push(row);
+      }
+      return board;
+    };
+    dispatch(resetPossibleNums());
+    for (let i = 0; i < 2; i++) {
+      setBoards((boards) => [...boards, initBoard()]);
+    }
+  }, [dispatch]);
+
+  // second render: 1.load the initial nums into the board, 2.reset the possible nums.
+  useEffect(() => {
+    //1.load the initial nums into the board:
+    const initBoardValues = (board, boardIndex) => {
+      for (let i = 0; i < 5; i++) {
+        for (let j = 0; j < 5; j++) {
+          board[i][j].value =
+            initialNums[i * board.length + j + boardIndex * board.length ** 2];
+        }
+      }
+    };
+
+    setBoards((boards) => {
+      const updatedBoards = [];
+      for (let i = 0; i < 2; i++) {
+        if (boards[i]) {
+          initBoardValues(boards[i], i);
+          updatedBoards.push(boards[i]);
+        }
+      }
+      return updatedBoards;
+    });
+
+    // 2.reset the possible nums:
+    dispatch(resetPossibleNums());
+  }, [initialNums, dispatch]);
 
   return (
     <main
-      className="container text-center d-flex flex-column"
+      className="container align-items-center text-center d-flex flex-column"
       style={{ maxWidth: '750px' }}
     >
-      <h1>Bingo!</h1>
-      {drawnNums.length > 0 && (
-        <h2>NUMBER: {drawnNums[drawnNums.length - 1]}</h2>
-      )}
-      <h3>Player 1</h3>
-      <Board drawnNums={drawnNums} onDrawNum={drawNum} />
-      <h3>Player 2</h3>
-      <Board drawnNums={drawnNums} onDrawNum={drawNum} />
-      <Button onClick={drawNumHandler}>Draw Number</Button>
+      <h1>BINGO!</h1>
+      <DrawSection />
+
+      {boards[0] && <Board board={boards[0]} />}
+      {boards[1] && <Board board={boards[1]} />}
       <DrawnNumber drawnNums={drawnNums} />
-      <p>Drawn Numbers so far..: {drawnNums}</p>
-      <p>possible nums: {gNums}</p>
+      <HistoryBalls />
+      <UpcomingBalls possibleNums={possibleNums} />
     </main>
   );
 }

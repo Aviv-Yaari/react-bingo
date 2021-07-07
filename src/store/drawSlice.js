@@ -3,6 +3,7 @@ import { createSlice } from '@reduxjs/toolkit';
 const initialState = {
   possibleNums: [],
   drawnNums: [],
+  initialNums: [],
 };
 
 export const drawSlice = createSlice({
@@ -15,6 +16,13 @@ export const drawSlice = createSlice({
         state.possibleNums.push(i);
       }
     },
+    drawInitialNum: (state) => {
+      const randomNum = Math.floor(
+        Math.random() * (state.possibleNums.length - 1)
+      );
+      const drawnNum = state.possibleNums.splice(randomNum, 1)[0];
+      state.initialNums.push(drawnNum);
+    },
     drawNum: (state) => {
       const randomNum = Math.floor(
         Math.random() * (state.possibleNums.length - 1)
@@ -26,6 +34,6 @@ export const drawSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { increment, decrement, incrementByAmount } = drawSlice.actions;
+export const { resetPossibleNums, drawNum, drawInitialNum } = drawSlice.actions;
 
 export default drawSlice.reducer;
