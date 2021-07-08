@@ -1,0 +1,36 @@
+.ball {
+  border-radius: 50px;
+  background-color: orange;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.prev {
+  padding: 10px;
+  margin: 10px;
+}
+
+.prev:hover {
+  cursor: pointer;
+  background-color: khaki;
+}
+
+.current {
+  padding: 50px;
+  margin-top: 20px;
+}
+
+.animate {
+  animation: fade-out-in 750ms linear forwards;
+}
+
+@keyframes fade-out-in {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0;
+  }
+}

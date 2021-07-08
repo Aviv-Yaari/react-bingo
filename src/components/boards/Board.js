@@ -1,12 +1,16 @@
-import { Fragment } from 'react';
+import { useEffect } from 'react';
 import { Table } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { setGameOver } from '../../store/gameSlice';
 import Cell from './Cell';
 
 const Board = (props) => {
   const board = props.board;
+  const dispatch = useDispatch();
   const drawnNums = useSelector((state) => state.draw.drawnNums);
+  const isGameOver = useSelector((state) => state.game.isGameOver);
 
+  // function declerations
   const renderBoard = () => {
     const cells = [];
     for (let i = 0; i < board.length; i++) {
@@ -35,20 +39,29 @@ const Board = (props) => {
         }
       }
     }
+
     return count;
   };
 
-  // on every render.. :
+  // on every render.. execution:
   const cells = renderBoard();
   const score = calcScore();
 
+  useEffect(() => {
+    if (score === board.length * board[0].length && !isGameOver) {
+      // temp 3 change to board.length !!
+      dispatch(setGameOver(true));
+      console.log('game over');
+    }
+  }, [score, isGameOver, board.length, dispatch]);
+
   return (
-    <Fragment>
-      <h3>Score: {score}</h3>
+    <div className="d-flex flex-column mx-5 p-5 text-center">
       <Table striped bordered hover>
         <tbody>{cells}</tbody>
       </Table>
-    </Fragment>
+      <p>Score: {score}</p>
+    </div>
   );
 };
 

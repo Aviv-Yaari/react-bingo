@@ -1,0 +1,7 @@
+.hit {
+  background-color: rgba(252, 86, 86, 0.527);
+}
+
+td {
+  transition: background-color 1.25s;
+}

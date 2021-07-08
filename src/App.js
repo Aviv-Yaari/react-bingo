@@ -1,23 +1,26 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import Board from './components/Board';
-import DrawnNumber from './components/DrawnNumber';
-import { drawInitialNum, drawNum, resetPossibleNums } from './store/drawSlice';
-import HistoryBalls from './components/Balls/HistoryBalls';
-import LatestBall from './components/Balls/LatestBall';
-import UpcomingBalls from './components/Balls/UpcomingBalls';
-import DrawSection from './components/DrawSection';
+import {
+  drawInitialNum,
+  resetInitialNums,
+  resetPossibleNums,
+} from './store/drawSlice';
+import PrevBalls from './components/balls/PrevBalls';
+import BoardsSection from './components/boards/BoardsSection';
+import LatestBall from './components/balls/LatestBall';
+import DrawButton from './components/UI/DrawButton';
 
 function App() {
-  const drawnNums = useSelector((state) => state.draw.drawnNums);
   const initialNums = useSelector((state) => state.draw.initialNums);
   const possibleNums = useSelector((state) => state.draw.possibleNums);
-
+  const drawnNums = useSelector((state) => state.draw.drawnNums);
+  const isGameOver = useSelector((state) => state.game.isGameOver);
   const dispatch = useDispatch();
   const [boards, setBoards] = useState([]);
 
-  // first render: initialize board
+  // first render: initialize boards
   useEffect(() => {
+    // function decleration:
     const initBoard = () => {
       const board = [];
       for (let i = 0; i < 5; i++) {
@@ -30,15 +33,15 @@ function App() {
       }
       return board;
     };
+    if (isGameOver) return;
+    setBoards([initBoard(), initBoard()]);
     dispatch(resetPossibleNums());
-    for (let i = 0; i < 2; i++) {
-      setBoards((boards) => [...boards, initBoard()]);
-    }
-  }, [dispatch]);
+  }, [dispatch, isGameOver]);
 
-  // second render: 1.load the initial nums into the board, 2.reset the possible nums.
+  // second render: load the initial nums into the board
   useEffect(() => {
-    //1.load the initial nums into the board:
+    if (!initialNums.length) return;
+    // function decleration:
     const initBoardValues = (board, boardIndex) => {
       for (let i = 0; i < 5; i++) {
         for (let j = 0; j < 5; j++) {
@@ -48,34 +51,29 @@ function App() {
       }
     };
 
+    //1.load the initial nums into the board:
     setBoards((boards) => {
       const updatedBoards = [];
       for (let i = 0; i < 2; i++) {
-        if (boards[i]) {
-          initBoardValues(boards[i], i);
-          updatedBoards.push(boards[i]);
-        }
+        if (!boards[i]) continue;
+        initBoardValues(boards[i], i);
+        updatedBoards.push(boards[i]);
       }
       return updatedBoards;
     });
-
-    // 2.reset the possible nums:
-    dispatch(resetPossibleNums());
+    //2. reset initialNums
+    dispatch(resetInitialNums());
   }, [initialNums, dispatch]);
 
   return (
-    <main
-      className="container align-items-center text-center d-flex flex-column"
-      style={{ maxWidth: '750px' }}
-    >
-      <h1>BINGO!</h1>
-      <DrawSection />
-
-      {boards[0] && <Board board={boards[0]} />}
-      {boards[1] && <Board board={boards[1]} />}
-      <DrawnNumber drawnNums={drawnNums} />
-      <HistoryBalls />
-      <UpcomingBalls possibleNums={possibleNums} />
+    <main className="d-flex flex-column justify-center align-items-center">
+      <h1 className="text-center">
+        {drawnNums.length > 0 ? `MOVE #${drawnNums.length}` : 'BINGO!'}
+      </h1>
+      <LatestBall />
+      <BoardsSection boards={boards} />
+      <DrawButton />
+      <PrevBalls />
     </main>
   );
 }
