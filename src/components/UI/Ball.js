@@ -5,7 +5,6 @@ import classes from './Ball.module.css';
 const Ball = (props) => {
   const dispatch = useDispatch();
   const drawnNums = useSelector((state) => state.draw.drawnNums);
-  const isGameOver = useSelector((state) => state.game.isGameOver);
   const { index, type, size, num } = props;
 
   // decide initial css styles to add:
@@ -18,7 +17,7 @@ const Ball = (props) => {
   const [ballClasses, setBallClasses] = useState(initialClass);
 
   const clickHandler = () => {
-    if (type === 'PREV' && !isGameOver) {
+    if (type === 'PREV') {
       dispatch(returnToHistory(index));
     }
   };

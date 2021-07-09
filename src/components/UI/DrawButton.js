@@ -1,18 +1,16 @@
 import { useState } from 'react';
 import { Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
-import { drawNum, restartGame } from '../../store/drawSlice';
-import { setGameOver } from '../../store/gameSlice';
+import { drawNum, startGame } from '../../store/drawSlice';
 
 const DrawButton = () => {
   const dispatch = useDispatch();
   const [active, setActive] = useState(true);
-  const isGameOver = useSelector((state) => state.game.isGameOver);
+  const isGameOver = useSelector((state) => state.draw.isGameOver);
 
   const clickHandler = () => {
     if (isGameOver) {
-      dispatch(setGameOver(false));
-      dispatch(restartGame());
+      dispatch(startGame());
       return;
     }
     if (!active) return;
@@ -27,9 +25,7 @@ const DrawButton = () => {
 
   return (
     <div className="m-auto">
-      <Button onClick={clickHandler}>
-        {isGameOver ? 'GAME OVER' : 'DRAW'}
-      </Button>
+      <Button onClick={clickHandler}>{isGameOver ? 'RESTART' : 'DRAW'}</Button>
     </div>
   );
 };

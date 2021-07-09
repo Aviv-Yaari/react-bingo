@@ -3,7 +3,7 @@ import Ball from '../UI/Ball';
 
 const LatestBall = () => {
   const drawnNums = useSelector((state) => state.draw.drawnNums);
-  const isGameOver = useSelector((state) => state.game.isGameOver);
+  const isGameOver = useSelector((state) => state.draw.isGameOver);
 
   let num =
     drawnNums.length > 0
